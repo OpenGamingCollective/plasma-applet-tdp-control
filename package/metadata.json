@@ -1,0 +1,22 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "me@kylegospodneti.ch",
+                "Name": "Kyle Gospodnetich"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Performance profile, TDP limit and manual GPU clock, backed by steamos-manager",
+        "EnabledByDefault": true,
+        "Icon": "speedometer",
+        "Id": "org.opengamingcollective.tdpcontrol",
+        "License": "GPL-3.0+",
+        "Name": "TDP Control",
+        "Version": "1.0",
+        "Website": "https://github.com/OpenGamingCollective/plasma-applet-tdp-control"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-NotificationAreaCategory": "Hardware"
+}
