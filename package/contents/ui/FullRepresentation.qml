@@ -88,7 +88,7 @@ PlasmaExtras.Representation {
                 stepSize: dialog.tdpStepW
                 value: dialog.controlState.tdp
 
-                onToggled: enabled => dialog.manager.setTdpEnabled(enabled)
+                onSwitchToggled: enabled => dialog.manager.setTdpEnabled(enabled)
                 onMoved: watts => dialog.manager.setTdp(watts)
             }
 
@@ -114,7 +114,7 @@ PlasmaExtras.Representation {
                 stepSize: dialog.gpuStepMhz
                 value: Model.gpuClockTarget(dialog.controlState)
 
-                onToggled: manual => dialog.manager.setGpuManual(manual)
+                onSwitchToggled: manual => dialog.manager.setGpuManual(manual)
                 onMoved: megahertz => dialog.manager.setGpuClock(megahertz)
             }
         }
