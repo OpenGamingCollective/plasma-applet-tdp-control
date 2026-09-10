@@ -34,7 +34,7 @@ PlasmaComponents3.ItemDelegate {
 
     property bool syncing: false
 
-    signal toggled(bool checked)
+    signal switchToggled(bool checked)
     signal moved(int value)
 
     hoverEnabled: false
@@ -85,7 +85,7 @@ PlasmaComponents3.ItemDelegate {
                 Layout.fillWidth: true
                 text: root.switchText
                 checked: root.switchChecked
-                onToggled: root.toggled(checked)
+                onToggled: root.switchToggled(checked)
 
                 Connections {
                     target: root
