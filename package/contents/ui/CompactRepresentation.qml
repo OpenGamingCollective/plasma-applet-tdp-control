@@ -17,23 +17,30 @@ Item {
     property var manager
     property string iconSource
 
-    // Expanding is main.qml's call: it owns the PlasmoidItem that
-    // "expanded" actually lives on, not the Plasmoid attached object
     signal toggleRequested()
+
+    property real lastToggleAt: 0
+    readonly property int debounceMs: 400
 
     Kirigami.Icon {
         anchors.fill: parent
         source: root.iconSource
-        active: hoverHandler.hovered
+        active: mouseArea.containsMouse
     }
 
-    HoverHandler {
-        id: hoverHandler
+    MouseArea {
+        id: mouseArea
 
-        onHoveredChanged: if (hovered) root.manager.refresh()
-    }
+        anchors.fill: parent
+        hoverEnabled: true
 
-    TapHandler {
-        onTapped: root.toggleRequested()
+        onContainsMouseChanged: if (containsMouse) root.manager.refresh()
+        onClicked: {
+            const now = Date.now();
+            if (now - root.lastToggleAt < root.debounceMs)
+                return;
+            root.lastToggleAt = now;
+            root.toggleRequested();
+        }
     }
 }

@@ -23,8 +23,6 @@ PlasmoidItem {
     readonly property var controlState: steamManager.controlState
     readonly property var activeParams: Profiles.profileParams(controlState.profile)
 
-    preferredRepresentation: compactRepresentation
-
     Plasmoid.status: controlState.available
         ? PlasmaCore.Types.ActiveStatus
         : PlasmaCore.Types.HiddenStatus
