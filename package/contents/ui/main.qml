@@ -55,7 +55,8 @@ PlasmoidItem {
             tdpLimit: Plasmoid.configuration.tdpLimit,
             gpuManual: Plasmoid.configuration.gpuManual,
             gpuClock: Plasmoid.configuration.gpuClock,
-            tdpProfile: Plasmoid.configuration.tdpProfile
+            tdpProfile: Plasmoid.configuration.tdpProfile,
+            selectedProfile: Plasmoid.configuration.selectedProfile
         })
 
         onPersist: values => {

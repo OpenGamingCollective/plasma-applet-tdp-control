@@ -461,3 +461,54 @@ test("a profile isn't remembered when the limit can't be set", () => {
     assert.equal(out.state.rememberedProfile, "");
     assert.equal(out.persist.tdpProfile, undefined);
 });
+
+test("a hand-picked profile is persisted when the user chooses it", () => {
+    let {state} = settled(model.initialState(NO_CONFIG), FULL);
+    const out = model.reduce(state, {type: "setProfile", profile: "performance", now: 1000});
+    assert.equal(out.persist.selectedProfile, "performance");
+});
+
+test("the hand-picked profile comes back at login", () => {
+    const config = {...NO_CONFIG, selectedProfile: "performance"};
+    const out = settled(model.initialState(config), FULL, 1000);
+    assert.deepEqual(out.commands, [{
+        key: "profile",
+        kind: "set",
+        iface: "com.steampowered.SteamOSManager1.PerformanceProfile1",
+        property: "PerformanceProfile",
+        signature: "s",
+        value: "performance",
+    }]);
+});
+
+test("a hand-picked profile already active needs no write", () => {
+    const config = {...NO_CONFIG, selectedProfile: "balanced"};
+    const out = settled(model.initialState(config), FULL, 1000);
+    assert.deepEqual(out.commands, []);
+});
+
+test("the hand-picked profile outranks the one the TDP limit needs", () => {
+    const config = {...NO_CONFIG, tdpEnabled: true, tdpLimit: 12,
+        tdpProfile: "performance", selectedProfile: "low-power"};
+    const objects = {...FULL, tdp: null};
+    const out = settled(model.initialState(config), objects, 1000);
+    const profileWrites = out.commands.filter(c => c.property === "PerformanceProfile");
+    assert.ok(profileWrites.length > 0);
+    assert.equal(profileWrites[profileWrites.length - 1].value, "low-power");
+});
+
+test("a hand-picked profile the hardware no longer offers is ignored", () => {
+    const config = {...NO_CONFIG, selectedProfile: "turbo"};
+    const out = settled(model.initialState(config), FULL, 1000);
+    assert.equal(out.commands.some(c => c.property === "PerformanceProfile"), false);
+});
+
+test("the hand-picked profile is restored when the profile interface appears late", () => {
+    const config = {...NO_CONFIG, selectedProfile: "performance"};
+    let {state} = settled(model.initialState(config), {...FULL, profile: null});
+    assert.equal(state.selectedProfileRestored, false);
+
+    const out = settled(state, FULL, 1100);
+    assert.equal(out.commands.some(c =>
+        c.property === "PerformanceProfile" && c.value === "performance"), true);
+});

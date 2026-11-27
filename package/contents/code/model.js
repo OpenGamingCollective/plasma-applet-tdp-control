@@ -35,8 +35,10 @@ function initialState(config) {
         rememberedTdp: config.tdpLimit || 0,
         rememberedGpuClock: config.gpuClock || 0,
         rememberedProfile: config.tdpProfile || "",
+        rememberedSelectedProfile: config.selectedProfile || "",
         tdpRestored: false,
         profileRestored: false,
+        selectedProfileRestored: false,
         gpuRestored: false,
         gpuClockToProgram: 0,
         pending: {}
@@ -294,8 +296,10 @@ function applySnapshot(ctx, event) {
     // An interface that goes away has to be restored if it comes back
     if (hadTdp && !state.hasTdp)
         state.tdpRestored = false;
-    if (hadProfiles && !state.hasProfiles)
+    if (hadProfiles && !state.hasProfiles) {
         state.profileRestored = false;
+        state.selectedProfileRestored = false;
+    }
     if (hadGpu && !state.hasGpu)
         state.gpuRestored = false;
 
@@ -315,6 +319,11 @@ function applySnapshot(ctx, event) {
     // whole snapshot has landed
     if (state.hasProfiles)
         restoreProfile(ctx);
+
+    // The hand-picked profile is the user's explicit choice, so it lands
+    // last and outranks whatever the TDP restore queued before it
+    if (state.hasProfiles)
+        restoreSelectedProfile(ctx);
 }
 
 function applyUnavailable(ctx) {
@@ -324,7 +333,8 @@ function applyUnavailable(ctx) {
         gpuManual: state.gpuManualWanted,
         tdpLimit: state.rememberedTdp,
         gpuClock: state.rememberedGpuClock,
-        tdpProfile: state.rememberedProfile
+        tdpProfile: state.rememberedProfile,
+        selectedProfile: state.rememberedSelectedProfile
     });
 }
 
@@ -414,6 +424,26 @@ function restoreProfile(ctx) {
         return;
 
     var profile = state.rememberedProfile;
+    if (!profile || profile === state.profile)
+        return;
+    if (state.profiles.indexOf(profile) === -1)
+        return;
+
+    setProfile(ctx, profile);
+}
+
+// The profile the user last picked by hand comes back at login, so the
+// popup shows what it did before the reboot even though the firmware
+// defaults elsewhere; an explicit choice outranks the profile the TDP
+// limit happens to need, which then simply stays unavailable until the
+// user goes back to a profile that offers it
+function restoreSelectedProfile(ctx) {
+    var state = ctx.state;
+    if (state.selectedProfileRestored || !state.hasProfiles)
+        return;
+
+    state.selectedProfileRestored = true;
+    var profile = state.rememberedSelectedProfile;
     if (!profile || profile === state.profile)
         return;
     if (state.profiles.indexOf(profile) === -1)
@@ -520,6 +550,7 @@ function reduce(state, event) {
         break;
     case "setProfile":
         setProfile(ctx, event.profile);
+        ctx.persist.selectedProfile = event.profile;
         break;
     case "setTdpEnabled":
         applySetTdpEnabled(ctx, event);
