@@ -26,6 +26,10 @@
       <label>Performance profile the manual TDP limit was last set under.</label>
       <default></default>
     </entry>
+    <entry name="selectedProfile" type="String">
+      <label>Performance profile the user last picked by hand, restored at login.</label>
+      <default></default>
+    </entry>
   </group>
 
 </kcfg>
